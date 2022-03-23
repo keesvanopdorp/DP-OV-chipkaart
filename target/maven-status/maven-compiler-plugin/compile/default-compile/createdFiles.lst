@@ -1,0 +1,10 @@
+xyz\keesvanopdorp\DP_OV_Chipkaart\domain\Adres.class
+xyz\keesvanopdorp\DP_OV_Chipkaart\Main.class
+xyz\keesvanopdorp\DP_OV_Chipkaart\dao\reiziger\ReizigerDaoPostgres.class
+xyz\keesvanopdorp\DP_OV_Chipkaart\domain\OVChipKaart.class
+xyz\keesvanopdorp\DP_OV_Chipkaart\dao\ovchipkaart\OVChipKaartDaoPostgres.class
+xyz\keesvanopdorp\DP_OV_Chipkaart\dao\adres\AdresDaoPostgres.class
+xyz\keesvanopdorp\DP_OV_Chipkaart\dao\adres\AdresDAO.class
+xyz\keesvanopdorp\DP_OV_Chipkaart\dao\ovchipkaart\OVChipKaartDAO.class
+xyz\keesvanopdorp\DP_OV_Chipkaart\dao\reiziger\ReizigerDAO.class
+xyz\keesvanopdorp\DP_OV_Chipkaart\domain\Reiziger.class
