@@ -41,7 +41,7 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
             statement.setString(3, inReiziger.getTussenvoegsel());
             statement.setString(4, inReiziger.getAchternaam());
             statement.setDate(5, inReiziger.getGeboortedatum());
-            statement.executeQuery();
+            statement.executeUpdate();
             statement.close();
         } catch (SQLException throwables) {
             System.err.println("SQLExecption:" + throwables.getMessage());
@@ -58,7 +58,7 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
             statement.setString(3, inReiziger.getAchternaam());
             statement.setDate(4, inReiziger.getGeboortedatum());
             statement.setInt(5, inReiziger.getId());
-            statement.executeQuery();
+            statement.executeUpdate();
             statement.close();
         } catch (SQLException throwables) {
             System.err.println("SQLExecption:" + throwables.getMessage());
@@ -72,7 +72,7 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
             adresDaoPostgres.delete(inReiziger.getAdres());
             PreparedStatement statement = this.connection.prepareStatement("DELETE FROM reiziger WHERE reiziger_id = ?;");
             statement.setInt(1, inReiziger.getId());
-            statement.executeQuery();
+            statement.executeUpdate();
             statement.close();
         } catch (SQLException throwables) {
             System.err.println("SQLExecption:" + throwables.getMessage());
@@ -86,7 +86,7 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM reiziger WHERE reiziger_id = ?;");
             statement.setInt(1, id);
             ResultSet set = statement.executeQuery();
-            if (set.next()) {
+            while (set.next()) {
                 reiziger.fillFromResultSet(set);
                 reiziger.setAdres(this.adresDaoPostgres.findByReiziger(reiziger));
             }

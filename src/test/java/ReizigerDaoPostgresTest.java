@@ -1,25 +1,27 @@
 import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.adres.AdresDaoPostgres;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.ovchipkaart.OVChipKaartDaoPostgres;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.reiziger.ReizigerDaoPostgres;
-import xyz.keesvanopdorp.DP_OV_Chipkaart.domain.OVChipKaart;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.domain.Reiziger;
+
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class ReizigerDaoPostgresTest {
     private static Connection conn = null;
     private final static Dotenv dotenv = Dotenv.load();
-    private ReizigerDaoPostgres reizigerDaoPostgres;
-    private AdresDaoPostgres adresDaoPostgres;
-    private OVChipKaartDaoPostgres ovChipKaartDaoPostgres;
+    private static ReizigerDaoPostgres reizigerDaoPostgres;
+    private static AdresDaoPostgres adresDaoPostgres;
+    private static OVChipKaartDaoPostgres ovChipKaartDaoPostgres;
 
     private static void createConnection() {
         if (conn == null) {
@@ -54,7 +56,7 @@ public class ReizigerDaoPostgresTest {
      * function to create the database and setup the dao's need in this test
      */
     @BeforeAll
-    public void setup() {
+    public static void setup() {
         createConnection();
         reizigerDaoPostgres = new ReizigerDaoPostgres(conn);
         adresDaoPostgres = new AdresDaoPostgres(conn);
@@ -64,23 +66,38 @@ public class ReizigerDaoPostgresTest {
     }
 
     @AfterAll()
-    public void teardown() {
+    public static void teardown() {
         closeConnection();
     }
 
     @Test
     public void testFindAll() {
         ArrayList<Reiziger> reizigers = reizigerDaoPostgres.findAll();
-
+        assertEquals(true, reizigers != null);
     }
 
+    @Test
+    public void createReiziger() {
+        try {
+            Reiziger reiziger = new Reiziger();
+            reiziger.setTussenvoegsel("van");
+            reiziger.setAchternaam("Opdorp");
+            reiziger.setVoorletters("J.C.");
+            reiziger.setGeboortedatum(Date.valueOf("2001-06-22"));
+            reiziger.setId(9999);
+            reizigerDaoPostgres.save(reiziger);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
     public void testUpdateReiziger() {
-        String surname = "Opdorp";
-        String insertion = "van";
-        Reiziger oldReiziger = reizigerDaoPostgres.findById(0);
-        oldReiziger.setAchternaam("Opdorp");
-        oldReiziger.setTussenvoegsel();
-     }
-
-
+        String surname = "Opdor";
+        Reiziger oldReiziger = reizigerDaoPostgres.findById(9999);
+        oldReiziger.setAchternaam(surname);
+        reizigerDaoPostgres.update(oldReiziger);
+        Reiziger newReiziger = reizigerDaoPostgres.findById(9999);
+        assertEquals(newReiziger.getAchternaam(), surname);
+    }
 }

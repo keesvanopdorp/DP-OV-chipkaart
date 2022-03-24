@@ -39,7 +39,7 @@ public class AdresDaoPostgres implements AdresDAO {
             if (inAdres.reiziger != null) {
                 statement.setInt(6, inAdres.reiziger.getId());
             }
-            statement.executeQuery();
+            statement.executeUpdate();
             statement.close();
         } catch (SQLException throwables) {
             System.err.println("SQLExecption:" + throwables.getMessage());
