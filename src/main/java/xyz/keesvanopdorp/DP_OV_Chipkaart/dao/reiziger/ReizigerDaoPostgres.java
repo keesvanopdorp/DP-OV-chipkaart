@@ -2,6 +2,7 @@ package xyz.keesvanopdorp.DP_OV_Chipkaart.dao.reiziger;
 
 import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.adres.AdresDaoPostgres;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.ovchipkaart.OVChipKaartDaoPostgres;
+import xyz.keesvanopdorp.DP_OV_Chipkaart.domain.OVChipKaart;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.domain.Reiziger;
 
 import java.sql.*;
@@ -43,6 +44,15 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
             statement.setDate(5, inReiziger.getGeboortedatum());
             statement.executeUpdate();
             statement.close();
+            if (inReiziger.getOvChipKaarten() != null) {
+                for (OVChipKaart ovChipKaart : inReiziger.getOvChipKaarten()) {
+
+                    this.ovChipKaartDaoPostgres.save(ovChipKaart);
+                }
+            }
+            if(inReiziger.getAdres() != null) {
+                this.adresDaoPostgres.save(inReiziger.getAdres());
+            }
         } catch (SQLException throwables) {
             System.err.println("SQLExecption:" + throwables.getMessage());
         }
@@ -60,6 +70,15 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
             statement.setInt(5, inReiziger.getId());
             statement.executeUpdate();
             statement.close();
+            if (inReiziger.getOvChipKaarten() != null) {
+                for (OVChipKaart ovChipKaart : inReiziger.getOvChipKaarten()) {
+
+                    this.ovChipKaartDaoPostgres.update(ovChipKaart);
+                }
+            }
+            if(inReiziger.getAdres() != null) {
+                this.adresDaoPostgres.update(inReiziger.getAdres());
+            }
         } catch (SQLException throwables) {
             System.err.println("SQLExecption:" + throwables.getMessage());
         }
@@ -69,11 +88,20 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
     @Override
     public boolean delete(Reiziger inReiziger) {
         try {
-            adresDaoPostgres.delete(inReiziger.getAdres());
+            if (inReiziger.getOvChipKaarten() != null) {
+                for (OVChipKaart ovChipKaart : inReiziger.getOvChipKaarten()) {
+
+                    this.ovChipKaartDaoPostgres.delete(ovChipKaart);
+                }
+            }
+            if(inReiziger.getAdres() != null) {
+                this.adresDaoPostgres.delete(inReiziger.getAdres());
+            }
             PreparedStatement statement = this.connection.prepareStatement("DELETE FROM reiziger WHERE reiziger_id = ?;");
             statement.setInt(1, inReiziger.getId());
             statement.executeUpdate();
             statement.close();
+
         } catch (SQLException throwables) {
             System.err.println("SQLExecption:" + throwables.getMessage());
         }
@@ -89,6 +117,7 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
             while (set.next()) {
                 reiziger.fillFromResultSet(set);
                 reiziger.setAdres(this.adresDaoPostgres.findByReiziger(reiziger));
+                reiziger.setOvChipKaarten(this.ovChipKaartDaoPostgres.findByReiziger(reiziger));
             }
             set.close();
             statement.close();
