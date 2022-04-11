@@ -4,6 +4,7 @@ import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.adres.AdresDaoPostgres;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.ovchipkaart.OVChipKaartDaoPostgres;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.domain.OVChipKaart;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.domain.Reiziger;
+import xyz.keesvanopdorp.DP_OV_Chipkaart.util.SQLUtil;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -50,11 +51,11 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
                     this.ovChipKaartDaoPostgres.save(ovChipKaart);
                 }
             }
-            if(inReiziger.getAdres() != null) {
+            if (inReiziger.getAdres() != null) {
                 this.adresDaoPostgres.save(inReiziger.getAdres());
             }
         } catch (SQLException throwables) {
-            System.err.println("SQLExecption:" + throwables.getMessage());
+            SQLUtil.printSqlException(throwables);
         }
         return true;
     }
@@ -72,15 +73,14 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
             statement.close();
             if (inReiziger.getOvChipKaarten() != null) {
                 for (OVChipKaart ovChipKaart : inReiziger.getOvChipKaarten()) {
-
                     this.ovChipKaartDaoPostgres.update(ovChipKaart);
                 }
             }
-            if(inReiziger.getAdres() != null) {
+            if (inReiziger.getAdres() != null) {
                 this.adresDaoPostgres.update(inReiziger.getAdres());
             }
         } catch (SQLException throwables) {
-            System.err.println("SQLExecption:" + throwables.getMessage());
+            SQLUtil.printSqlException(throwables);
         }
         return true;
     }
@@ -94,7 +94,7 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
                     this.ovChipKaartDaoPostgres.delete(ovChipKaart);
                 }
             }
-            if(inReiziger.getAdres() != null) {
+            if (inReiziger.getAdres() != null) {
                 this.adresDaoPostgres.delete(inReiziger.getAdres());
             }
             PreparedStatement statement = this.connection.prepareStatement("DELETE FROM reiziger WHERE reiziger_id = ?;");
@@ -103,7 +103,7 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
             statement.close();
 
         } catch (SQLException throwables) {
-            System.err.println("SQLExecption:" + throwables.getMessage());
+            SQLUtil.printSqlException(throwables);
         }
         return true;
     }
@@ -117,12 +117,14 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
             while (set.next()) {
                 reiziger.fillFromResultSet(set);
                 reiziger.setAdres(this.adresDaoPostgres.findByReiziger(reiziger));
-                reiziger.setOvChipKaarten(this.ovChipKaartDaoPostgres.findByReiziger(reiziger));
+                if (reiziger.getOvChipKaarten() == null) {
+                    reiziger.setOvChipKaarten(this.ovChipKaartDaoPostgres.findByReiziger(reiziger));
+                }
             }
             set.close();
             statement.close();
         } catch (SQLException throwables) {
-            System.err.println("SQLExecption:" + throwables.getMessage());
+            SQLUtil.printSqlException(throwables);
         }
         return reiziger;
     }
@@ -137,13 +139,15 @@ public class ReizigerDaoPostgres implements ReizigerDAO {
                 Reiziger r = new Reiziger();
                 r.fillFromResultSet(rs);
                 r.setAdres(this.adresDaoPostgres.findByReiziger(r));
-                r.setOvChipKaarten(this.ovChipKaartDaoPostgres.findByReiziger(r));
+                if (r.getOvChipKaarten() == null) {
+                    r.setOvChipKaarten(this.ovChipKaartDaoPostgres.findByReiziger(r));
+                }
                 reizigers.add(r);
             }
             rs.close();
             st.close();
         } catch (SQLException throwables) {
-            System.err.println("SQLExecption:" + throwables.getMessage());
+            SQLUtil.printSqlException(throwables);
         }
         return reizigers;
     }

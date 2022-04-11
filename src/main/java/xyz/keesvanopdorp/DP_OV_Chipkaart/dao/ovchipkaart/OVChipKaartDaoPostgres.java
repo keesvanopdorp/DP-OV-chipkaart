@@ -1,8 +1,10 @@
 package xyz.keesvanopdorp.DP_OV_Chipkaart.dao.ovchipkaart;
 
+import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.product.ProductDaoPostgres;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.reiziger.ReizigerDaoPostgres;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.domain.OVChipKaart;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.domain.Reiziger;
+import xyz.keesvanopdorp.DP_OV_Chipkaart.util.SQLUtil;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -10,6 +12,7 @@ import java.util.ArrayList;
 public class OVChipKaartDaoPostgres implements OVChipKaartDAO {
     private Connection connection;
     private ReizigerDaoPostgres reizigerDaoPostgres;
+    private ProductDaoPostgres productDaoPostgres;
 
     public OVChipKaartDaoPostgres(Connection connection) {
         this.connection = connection;
@@ -23,6 +26,14 @@ public class OVChipKaartDaoPostgres implements OVChipKaartDAO {
         this.reizigerDaoPostgres = reizigerDaoPostgres;
     }
 
+    public ProductDaoPostgres getProductDaoPostgres() {
+        return productDaoPostgres;
+    }
+
+    public void setProductDaoPostgres(ProductDaoPostgres productDaoPostgres) {
+        this.productDaoPostgres = productDaoPostgres;
+    }
+
     @Override
     public boolean save(OVChipKaart inOVChipkaart) {
         try {
@@ -34,7 +45,7 @@ public class OVChipKaartDaoPostgres implements OVChipKaartDAO {
             statement.setInt(5, inOVChipkaart.getReiziger().getId());
             statement.executeQuery();
         } catch (SQLException throwables) {
-            System.err.println("SQLExecption:" + throwables.getMessage());
+            SQLUtil.printSqlException(throwables);
         }
         return true;
     }
@@ -50,7 +61,7 @@ public class OVChipKaartDaoPostgres implements OVChipKaartDAO {
             statement.setInt(5, inOVChipkaart.getKaartNummer());
             statement.executeQuery();
         } catch (SQLException throwables) {
-            System.err.println("SQLExecption:" + throwables.getMessage());
+            SQLUtil.printSqlException(throwables);
         }
         return true;
     }
@@ -58,11 +69,14 @@ public class OVChipKaartDaoPostgres implements OVChipKaartDAO {
     @Override
     public boolean delete(OVChipKaart inOVChipkaart) {
         try {
+            PreparedStatement deleteStatement = connection.prepareStatement("DELETE FROM ov_chipkaart_product WHERE kaart_nummer = ?");
+            deleteStatement.setInt(1, inOVChipkaart.getKaartNummer());
+            deleteStatement.execute();
             PreparedStatement statement = connection.prepareStatement("DELETE FROM ov_chipkaart WHERE kaart_nummer = ?");
             statement.setInt(1, inOVChipkaart.getKaartNummer());
             statement.executeQuery();
         } catch (SQLException throwables) {
-            System.err.println("SQLExecption:" + throwables.getMessage());
+            SQLUtil.printSqlException(throwables);
         }
         return true;
     }
@@ -77,12 +91,17 @@ public class OVChipKaartDaoPostgres implements OVChipKaartDAO {
             while (set.next()) {
                 OVChipKaart ovChipKaart = new OVChipKaart();
                 ovChipKaart.fillFromResultSet(set);
-                ovChipKaart.setReiziger(this.reizigerDaoPostgres.findById(set.getInt("reiziger_id")));
+                if (ovChipKaart.getReiziger() == null) {
+                    ovChipKaart.setReiziger(inReiziger);
+                }
+                if (ovChipKaart.getProducten() != null) {
+                    ovChipKaart.setProducten(this.productDaoPostgres.findByOvchipkaart(ovChipKaart));
+                }
             }
             set.close();
             statement.close();
         } catch (SQLException throwables) {
-            System.err.println("SQLExecption:" + throwables.getMessage());
+            SQLUtil.printSqlException(throwables);
         }
         return ovChipKaarten;
     }
@@ -96,13 +115,15 @@ public class OVChipKaartDaoPostgres implements OVChipKaartDAO {
             while (set.next()) {
                 OVChipKaart ovChipKaart = new OVChipKaart();
                 ovChipKaart.fillFromResultSet(set);
-                ovChipKaart.setReiziger(this.reizigerDaoPostgres.findById(set.getInt("reiziger_id")));
+                if(ovChipKaart.getReiziger() == null) {
+                    ovChipKaart.setReiziger(this.reizigerDaoPostgres.findById(set.getInt("reiziger_id")));
+                }
                 ovChipKaarten.add(ovChipKaart);
             }
             set.close();
             statement.close();
         } catch (SQLException throwables) {
-            System.err.println("SQLExecption:" + throwables.getMessage());
+            SQLUtil.printSqlException(throwables);
         }
         return ovChipKaarten;
     }

@@ -2,9 +2,9 @@ package xyz.keesvanopdorp.DP_OV_Chipkaart.domain;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class OVChipKaart {
     private int kaartNummer;
@@ -12,6 +12,15 @@ public class OVChipKaart {
     private BigDecimal saldo;
     private int klasse;
     private Reiziger reiziger;
+    private ArrayList<Product> producten;
+
+    public ArrayList<Product> getProducten() {
+        return producten;
+    }
+
+    public void setProducten(ArrayList<Product> producten) {
+        this.producten = producten;
+    }
 
     public int getKaartNummer() {
         return kaartNummer;

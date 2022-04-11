@@ -3,6 +3,7 @@ package xyz.keesvanopdorp.DP_OV_Chipkaart;
 import io.github.cdimascio.dotenv.Dotenv;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.adres.AdresDaoPostgres;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.ovchipkaart.OVChipKaartDaoPostgres;
+import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.product.ProductDaoPostgres;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.reiziger.ReizigerDAO;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.reiziger.ReizigerDaoPostgres;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.domain.Reiziger;
@@ -52,10 +53,12 @@ public class Main {
         ReizigerDaoPostgres reizigerDaoPostgres = new ReizigerDaoPostgres(conn);
         AdresDaoPostgres adresDaoPostgres = new AdresDaoPostgres(conn);
         OVChipKaartDaoPostgres ovChipKaartDaoPostgres = new OVChipKaartDaoPostgres(conn);
+        ProductDaoPostgres productDaoPostgres = new ProductDaoPostgres(conn);
         ovChipKaartDaoPostgres.setReizigerDaoPostgres(reizigerDaoPostgres);
         reizigerDaoPostgres.setAdresDaoPostgres(adresDaoPostgres);
         reizigerDaoPostgres.setOvChipKaartDaoPostgres(ovChipKaartDaoPostgres);
         adresDaoPostgres.setReizigerDaoPostgres(reizigerDaoPostgres);
+        ovChipKaartDaoPostgres.setProductDaoPostgres(productDaoPostgres);
         //</editor-fold>
 
         try {
@@ -75,7 +78,7 @@ public class Main {
                 }
                 System.out.printf("#%s %s (%s)%n", rs.getInt("reiziger_id"), name, rs.getString("geboortedatum"));
             }
-            testReizigerDAO(reizigerDaoPostgres);
+//            testReizigerDAO(reizigerDaoPostgres);
             //</editor-fold>
 
             System.out.println(reizigerDaoPostgres.findAll());
@@ -100,6 +103,7 @@ public class Main {
 
         // Haal alle reizigers op uit de database
         List<Reiziger> reizigers = rdao.findAll();
+
         System.out.println("[Test] ReizigerDAO.findAll() geeft de volgende reizigers:");
         for (Reiziger r : reizigers) {
             System.out.println(r);
