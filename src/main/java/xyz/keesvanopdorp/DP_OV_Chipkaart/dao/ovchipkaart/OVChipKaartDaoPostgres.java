@@ -3,6 +3,7 @@ package xyz.keesvanopdorp.DP_OV_Chipkaart.dao.ovchipkaart;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.product.ProductDaoPostgres;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.dao.reiziger.ReizigerDaoPostgres;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.domain.OVChipKaart;
+import xyz.keesvanopdorp.DP_OV_Chipkaart.domain.Product;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.domain.Reiziger;
 import xyz.keesvanopdorp.DP_OV_Chipkaart.util.SQLUtil;
 
@@ -64,6 +65,25 @@ public class OVChipKaartDaoPostgres implements OVChipKaartDAO {
             SQLUtil.printSqlException(throwables);
         }
         return true;
+    }
+
+    public ArrayList<OVChipKaart> findByProduct(Product inProduct) {
+        ArrayList<OVChipKaart> ovChipKaarten = new ArrayList<>();
+        try {
+            PreparedStatement statement = this.connection.prepareStatement("SELECT * FROM ov_chipkaart WHERE kaart_nummer IN ((SELECT kaart_nummer FROM ov_chipkaart_product WHERE product_nummer = ?));");
+            statement.setInt(1, inProduct.getProductNummer());
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                OVChipKaart ovChipKaart = new OVChipKaart();
+                ovChipKaart.fillFromResultSet(set);
+                ovChipKaarten.add(ovChipKaart);
+            }
+            set.close();
+            statement.close();
+        } catch (SQLException throwables) {
+            SQLUtil.printSqlException(throwables);
+        }
+        return ovChipKaarten;
     }
 
     @Override
